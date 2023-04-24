@@ -1,10 +1,14 @@
 import format from "pg-format"
-import { IUserReq, IUserRes } from "../../interfaces/user.interfaces"
 import { QueryResult } from "pg"
+import * as bcrypt from "bcryptjs"
+
+import { IUserReq, IUserRes } from "../../interfaces/user.interfaces"
 import { client } from "../../database"
 import { responseUserSchema } from "../../schemas/user.schemas"
 
 const createUsersService = async (userData: IUserReq): Promise<IUserRes> => {
+  userData.password = bcrypt.hashSync(userData.password, 10)
+
   const queryString: string = format(
     `
       INSERT INTO users(%I)

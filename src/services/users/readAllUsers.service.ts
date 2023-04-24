@@ -1,4 +1,5 @@
 import { QueryResult } from "pg"
+
 import { client } from "../../database"
 import { IUserRes } from "../../interfaces/user.interfaces"
 import { arrayResponseUserSchema } from "../../schemas/user.schemas"

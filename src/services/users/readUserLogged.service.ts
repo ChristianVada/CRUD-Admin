@@ -1,6 +1,8 @@
 import { QueryConfig, QueryResult } from "pg"
+
 import { IUserRes } from "../../interfaces/user.interfaces"
 import { client } from "../../database"
+import { responseUserSchema } from "../../schemas/user.schemas"
 
 const readUserLoggedService = async (userId: number): Promise<IUserRes> => {
   const queryString = `
@@ -19,7 +21,9 @@ const readUserLoggedService = async (userId: number): Promise<IUserRes> => {
 
   const queryResult: QueryResult = await client.query(queryConfig)
 
-  return queryResult.rows[0]
+  const result = responseUserSchema.parse(queryResult.rows[0])
+
+  return result
 }
 
 export { readUserLoggedService }

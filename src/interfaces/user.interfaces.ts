@@ -1,5 +1,7 @@
-import { TypeOf, z } from "zod"
+import { z } from "zod"
+
 import {
+  patchUserSchema,
   requestUserSchema,
   responseUserSchema,
   userSchema,
@@ -11,25 +13,6 @@ type IUserReq = z.infer<typeof requestUserSchema>
 
 type IUserRes = z.infer<typeof responseUserSchema>
 
-// type IUserRes = z.infer<typeof >
-
-// interface IUser {
-//   id: number
-//   name: string
-//   email: string
-//   password: string
-//   admin: boolean
-//   active: boolean
-// }
-
-// type IUserReq = Omit<IUser, "id" | "active">
-
-// type IUserRes = Omit<IUser, "password">
-
-// interface IUserPatch {
-//   name: string
-//   email: string
-//   password: string
-// }
+type IUserPatch = z.infer<typeof patchUserSchema>
 
 export { IUser, IUserReq, IUserRes, IUserPatch }

@@ -1,10 +1,13 @@
 import { Request, Response } from "express"
+import Jwt from "jsonwebtoken"
+
 import { IUserPatch, IUserReq, IUserRes } from "../interfaces/user.interfaces"
 import { createUsersService } from "../services/users/createUsers.service"
 import { readAllUsersService } from "../services/users/readAllUsers.service"
 import { updataUserService } from "../services/users/updateUsers.service"
 import { deleteUserService } from "../services/users/deleteUser.service"
-import { requestUserSchema } from "../schemas/user.schemas"
+import { readUserLoggedService } from "../services/users/readUserLogged.service"
+import { putUserService } from "../services/users/putUser.service"
 
 const createUsersController = async (
   req: Request,
@@ -20,6 +23,7 @@ const readAllUsersController = async (
   res: Response
 ): Promise<Response> => {
   const userResponse: Array<IUserRes> = await readAllUsersService()
+
   return res.status(200).json(userResponse)
 }
 
@@ -27,8 +31,15 @@ const readUserLoggedController = async (
   req: Request,
   res: Response
 ): Promise<Response> => {
-  // const id = res.body
-  return res.json("entrou nessa rota")
+  const token: string = res.locals.token
+
+  const decodedToken: any = Jwt.verify(token!, process.env.SECRET_KEY!)
+
+  const userId: number = Number(decodedToken.sub)
+
+  const useResponse = await readUserLoggedService(userId)
+
+  return res.status(200).json(useResponse)
 }
 
 const updateUserController = async (
@@ -36,7 +47,7 @@ const updateUserController = async (
   res: Response
 ): Promise<Response> => {
   const userId: number = Number(req.params.id)
-  const newUserData: Partial<IUserPatch> = req.body
+  const newUserData: IUserPatch = req.body
 
   const updateUser = await updataUserService(userId, newUserData)
 
@@ -51,7 +62,22 @@ const deleteUserController = async (
 
   const deleteUser = await deleteUserService(userId)
 
+  if (!deleteUser) {
+    return res.status(204).send()
+  }
+
   return res.send()
+}
+
+const putUserController = async (
+  req: Request,
+  res: Response
+): Promise<Response> => {
+  const userId: number = Number(req.params.id)
+
+  const activeUser = await putUserService(userId)
+
+  return res.status(200).json(activeUser)
 }
 
 export {
@@ -60,4 +86,5 @@ export {
   readUserLoggedController,
   updateUserController,
   deleteUserController,
+  putUserController,
 }

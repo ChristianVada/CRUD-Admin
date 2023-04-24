@@ -4,31 +4,28 @@ import { QueryConfig, QueryResult } from "pg"
 import { client } from "../database"
 import { AppError } from "../error"
 
-const ensureUserIdExisits = async (
+const ensureUserIsActive = async (
   req: Request,
   res: Response,
   next: NextFunction
 ): Promise<Response | void> => {
-  const userId = req.params.id
+  const userEmail: string = req.body.email
 
   const queryString: string = `
-    SELECT 
-      *
-    FROM
-      users
-    WHERE
-      id = $1;
+    SELECT active
+    FROM users
+    WHERE email = $1;
   `
 
   const queryConfig: QueryConfig = {
     text: queryString,
-    values: [userId],
+    values: [userEmail],
   }
 
   const queryResult: QueryResult = await client.query(queryConfig)
 
   if (queryResult.rowCount === 0) {
-    throw new AppError("User not found", 404)
+    throw new AppError("Wrong email/password", 401)
   }
 
   res.locals.user = queryResult.rows[0]
@@ -36,4 +33,4 @@ const ensureUserIdExisits = async (
   return next()
 }
 
-export { ensureUserIdExisits }
+export { ensureUserIsActive }
