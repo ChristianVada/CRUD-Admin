@@ -14,6 +14,8 @@ import { ensureBodyisValidMiddleware } from "../middlewares/ensureBodyIsValid.mi
 import { patchUserSchema, requestUserSchema } from "../schemas/user.schemas"
 import { ensureTokenIsValid } from "../middlewares/ensureTokenIsValid.middleware"
 import { ensureIsAdmin } from "../middlewares/ensureIsAdmin.middleware"
+import { ensureCheckPermission } from "../middlewares/ensureCheckPermissiom.middleware"
+import { ensureUserIsNotActive } from "../middlewares/ensureUserIsNotActive.middleware"
 
 const userRoutes: Router = Router()
 
@@ -30,12 +32,14 @@ userRoutes.patch(
   ensureTokenIsValid,
   ensureBodyisValidMiddleware(patchUserSchema),
   ensureUserIdExisits,
+  ensureCheckPermission,
   ensureEmailNotExisits,
   updateUserController
 )
 userRoutes.delete(
   "/:id",
   ensureTokenIsValid,
+  ensureCheckPermission,
   ensureUserIdExisits,
   deleteUserController
 )
@@ -43,6 +47,7 @@ userRoutes.put(
   "/:id/recover",
   ensureTokenIsValid,
   ensureIsAdmin,
+  ensureUserIsNotActive,
   putUserController
 )
 

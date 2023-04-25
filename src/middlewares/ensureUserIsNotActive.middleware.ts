@@ -4,34 +4,33 @@ import { QueryConfig, QueryResult } from "pg"
 import { client } from "../database"
 import { AppError } from "../error"
 
-const ensureEmailNotExisits = async (
+const ensureUserIsNotActive = async (
   req: Request,
   res: Response,
   next: NextFunction
 ): Promise<Response | void> => {
-  const { email } = req.body
+  const userId: number = Number(req.params.id)
 
   const queryString: string = `
-    SELECT 
-      *
-    FROM
-      users
-    WHERE
-      email = $1;
+    SELECT active
+    FROM users
+    WHERE id = $1;
   `
 
   const queryConfig: QueryConfig = {
     text: queryString,
-    values: [email],
+    values: [userId],
   }
 
   const queryResult: QueryResult = await client.query(queryConfig)
 
-  if (queryResult.rowCount !== 0) {
-    throw new AppError("E-mail already registered", 409)
+  if (queryResult.rows[0].active === true) {
+    throw new AppError("User already active", 400)
   }
+
+  res.locals.user = queryResult.rows[0]
 
   return next()
 }
 
-export { ensureEmailNotExisits }
+export { ensureUserIsNotActive }
